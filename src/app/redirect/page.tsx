@@ -9,26 +9,31 @@ export default function RedirectPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
+  async function authUser(
+    providerName: string,
+    code: string,
+    codeVerifier: any,
+    redirectUrl: string
+  ) {
+    await pb
+      .collection("users")
+      .authWithOAuth2(providerName, code || "", codeVerifier, redirectUrl);
+
+    router.push("/me");
+  }
+
   useEffect(() => {
     const provider = JSON.parse(localStorage.getItem("provider") || "{}");
-    if (!provider) router.push("/login");
-
     const code = searchParams.get("code");
-    if (!code) router.push("/login");
 
-    const providerName = provider.name;
-    const codeVerifier = provider.codeVerifier;
-    const redirectUrl = "http://127.0.0.1:3000/redirect";
+    if (!provider || !code) router.push("/login");
+    else {
+      const providerName = provider.name;
+      const codeVerifier = provider.codeVerifier;
+      const redirectUrl = "http://127.0.0.1:3000/redirect";
 
-    async function authUser() {
-      await pb
-        .collection("users")
-        .authWithOAuth2(providerName, code || "", codeVerifier, redirectUrl);
-
-      router.push("/me");
+      authUser(providerName, code, codeVerifier, redirectUrl);
     }
-
-    authUser();
   });
 
   return (
