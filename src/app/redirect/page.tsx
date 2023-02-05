@@ -6,9 +6,7 @@ import { useRouter, useSearchParams, redirect } from "next/navigation";
 import { pb } from "@/helpers/pocketbase";
 
 export default function RedirectPage() {
-  // Define the searchParams in order to extract code
   const searchParams = useSearchParams();
-  // Define router in order to redirect user to either their personal page or the login page
   const router = useRouter();
 
   async function authUserAndRedirect(
@@ -18,12 +16,10 @@ export default function RedirectPage() {
     authRedirectUrl: string,
     redirectPath: string
   ) {
-    // Authenticate the user with OAuth2
     await pb
       .collection("users")
       .authWithOAuth2(providerName, code, codeVerifier, authRedirectUrl);
 
-    // Redirect the user to their own personal page
     try {
       redirect(redirectPath);
     } catch {
@@ -32,35 +28,31 @@ export default function RedirectPage() {
   }
 
   useEffect(() => {
-    // Extract the saved provider from local storage
     const provider = JSON.parse(localStorage.getItem("provider") || "{}");
-    // Extract the code from the external authentication server
-    const code = searchParams.get("code");
-    // Extract the provider state from the search params
-    const state = searchParams.get("state");
 
-    // If either the provide or the code are null, redirect the user back to the login page
-    if (!provider || !code || !state) redirect("/login");
+    if (!provider) redirect("/login");
 
-    const providerName = provider.name;
-    const codeVerifier = provider.codeVerifier;
-    const providerState = provider.state;
+    const nameFromLocal = provider.name;
+    const codeVerifierFromLocal = provider.codeVerifier;
+    const stateFromLocal = provider.state;
 
-    // If the provider name, the code verifier or the provider state are not present, redirect the user back to the login page
-    if (!providerName || !codeVerifier || !providerState) redirect("/login");
+    if (!nameFromLocal || !codeVerifierFromLocal || !stateFromLocal)
+      redirect("/login");
 
-    // If the state of the provider from local storage, and the state extracted from the URL don't match, redirect the buser back to the login page
-    if (state != providerState) redirect("/login");
+    const codeFromUrl = searchParams.get("code");
+    const stateFromUrl = searchParams.get("state");
+
+    if (!codeFromUrl || !stateFromUrl) redirect("/login");
+
+    if (stateFromUrl != stateFromLocal) redirect("/login");
     else {
-      const providerName = provider.name;
-      const codeVerifier = provider.codeVerifier;
       const authRedirectUrl = "http://127.0.0.1:3000/redirect";
       const redirectPath = "/me";
 
       authUserAndRedirect(
-        providerName,
-        code || "",
-        codeVerifier,
+        nameFromLocal,
+        codeFromUrl || "",
+        codeVerifierFromLocal,
         authRedirectUrl,
         redirectPath
       );
