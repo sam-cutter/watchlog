@@ -5,9 +5,9 @@ import { useRouter, redirect } from "next/navigation";
 import { pb } from "@/helpers/pocketbase";
 
 export default function MePage() {
-  const router = useRouter();
-
   if (!pb.authStore.isValid) redirect("/login");
+
+  const router = useRouter();
 
   return (
     <div>
