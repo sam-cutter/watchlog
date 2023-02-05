@@ -5,10 +5,10 @@ import Link from "next/link";
 
 export default function LoginButton({
   provider,
-  redirectUrl,
+  authRedirectUrl: redirectUrl,
 }: {
   provider: AuthProviderInfo;
-  redirectUrl: string;
+  authRedirectUrl: string;
 }) {
   const authUrl = provider.authUrl + redirectUrl;
 
