@@ -30,7 +30,7 @@ export default function RedirectPage() {
   useEffect(() => {
     const provider = JSON.parse(localStorage.getItem("provider") || "{}");
 
-    if (!provider) redirect("/login");
+    if (provider == "{}") redirect("/login");
 
     const nameFromLocal = provider.name;
     const codeVerifierFromLocal = provider.codeVerifier;
