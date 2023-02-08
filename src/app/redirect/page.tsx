@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams, redirect } from "next/navigation";
+import { setCookie } from "cookies-next";
 
 import { pb } from "@/helpers/pocketbase";
 
@@ -19,6 +20,8 @@ export default function RedirectPage() {
     await pb
       .collection("users")
       .authWithOAuth2(providerName, code, codeVerifier, authRedirectUrl);
+
+    setCookie("auth", pb.authStore.exportToCookie());
 
     try {
       redirect(redirectPath);
