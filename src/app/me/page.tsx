@@ -1,13 +1,12 @@
 "use client";
 
 import { redirect, useRouter } from "next/navigation";
-import { getCookie, deleteCookie } from "cookies-next";
+import { getCookie, setCookie } from "cookies-next";
 
 import { pb } from "@/helpers/pocketbase";
 
 export default function MePage() {
   const authCookie = getCookie("auth");
-
   if (!authCookie) redirect("/login");
 
   pb.authStore.loadFromCookie(authCookie.toString());
@@ -22,7 +21,7 @@ export default function MePage() {
       <button
         onClick={() => {
           pb.authStore.clear();
-          deleteCookie("auth");
+          setCookie("auth", pb.authStore);
           router.push("/login");
         }}
       >
